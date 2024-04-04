@@ -21,7 +21,6 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
     @Autowired
     private UserDetailsServiceImp userDetailsService;
 
@@ -40,6 +39,27 @@ public class SecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/js/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/signup")).permitAll()
                         .anyRequest().authenticated()
+
+                        // unauthenticated users can read restaurants and reviews.
+                        .requestMatchers(
+                                new AntPathRequestMatcher("/restaurants")).permitAll()
+                        .requestMatchers(
+                                new AntPathRequestMatcher("/reviews/show/**")).permitAll()
+
+
+                        // members and admins can also add reviews
+                        .requestMatchers(
+                                new AntPathRequestMatcher("/reviews/add/**"))
+                        .hasAnyRole("USER", "ADMIN")
+
+
+                        // admins can add restaurants
+                        .requestMatchers(
+                                new AntPathRequestMatcher("/restaurants/add")).hasRole("ADMIN")
+
+
+                        // other url must be authenticated
+                        .anyRequest().authenticated()
                 )
                 .formLogin((form) -> form
                         .loginPage("/login")
@@ -54,11 +74,11 @@ public class SecurityConfig {
                         .permitAll()
                 );
 
-                http.headers(headers -> headers
-                        .xssProtection(Customizer.withDefaults())
-                        .contentSecurityPolicy(csp -> csp
-                                .policyDirectives("form-action 'self'; script-src 'self'"))
-                );
+        http.headers(headers -> headers
+                .xssProtection(Customizer.withDefaults())
+                .contentSecurityPolicy(csp -> csp
+                        .policyDirectives("form-action 'self'; script-src 'self'"))
+        );
 
         ClientRegistrationRepository repository =
                 context.getBean(ClientRegistrationRepository.class);
@@ -74,6 +94,7 @@ public class SecurityConfig {
                             .loginPage("/login").permitAll()
                     );
         }
+
         return http.build();
     }
     @Bean
@@ -86,6 +107,5 @@ public class SecurityConfig {
         return (web) -> web.ignoring()
                 .requestMatchers(new AntPathRequestMatcher("/h2-console/**"));
     }
+
 }
-
-

@@ -1,11 +1,11 @@
 package ku.kinkao.entity;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import lombok.Data;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import java.time.Instant;
 import java.util.UUID;
+import java.time.Instant;
 
 @Data
 @Entity
@@ -20,6 +20,7 @@ public class Member {
     private String firstName;
     private String lastName;
     private String email;
+    private String role;
     private Instant createdAt;
-}
 
+}
